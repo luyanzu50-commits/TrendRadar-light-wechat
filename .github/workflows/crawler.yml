@@ -93,6 +93,14 @@ jobs:
             fi
           fi
 
+      - name: Restore local data cache
+        if: success()
+        uses: actions/cache/restore@v4
+        with:
+          path: output
+          key: ${{ runner.os }}-trendradar-output-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ runner.os }}-trendradar-output-
 
       # --------------------------------------------------------------------------------
       # 🚦 TRAFFIC CONTROL / 流量控制
@@ -168,3 +176,10 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           GITHUB_ACTIONS: true
         run: uv run python -m trendradar
+
+      - name: Save local data cache
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: output
+          key: ${{ runner.os }}-trendradar-output-${{ github.run_id }}-${{ github.run_attempt }}
