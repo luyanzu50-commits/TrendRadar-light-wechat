@@ -34,6 +34,8 @@ from trendradar.notification.splitter import (
     split_content_into_batches,
     DEFAULT_BATCH_SIZES,
 )
+from trendradar.notification import senders as _senders
+from trendradar.notification.ntfy_clicks import enable_ntfy_click_headers
 from trendradar.notification.senders import (
     send_to_feishu,
     send_to_dingtalk,
@@ -45,6 +47,9 @@ from trendradar.notification.senders import (
     send_to_slack,
     SMTP_CONFIGS,
 )
+
+send_to_ntfy = enable_ntfy_click_headers(_senders)
+
 from trendradar.notification.dispatcher import NotificationDispatcher
 
 __all__ = [

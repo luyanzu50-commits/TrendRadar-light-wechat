@@ -1,0 +1,40 @@
+name: ntfy Smoke Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/ntfy-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send ntfy smoke notification
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          NTFY_SERVER_URL: ${{ secrets.NTFY_SERVER_URL }}
+          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+        run: |
+          if [ -z "${NTFY_TOPIC:-}" ]; then
+            echo "NTFY_TOPIC secret is missing"
+            exit 1
+          fi
+
+          SERVER="${NTFY_SERVER_URL:-https://ntfy.sh}"
+          MESSAGE="GitHub Actions 已成功读取 NTFY_TOPIC，并通过 ntfy 发出这条验收通知。后续 TrendRadar 自动推送会使用同一个 topic。"
+          AUTH_ARGS=()
+          if [ -n "${NTFY_TOKEN:-}" ]; then
+            AUTH_ARGS=(-H "Authorization: Bearer ${NTFY_TOKEN}")
+          fi
+
+          curl --fail --silent --show-error \
+            -H "Title: TrendRadar GitHub Secret OK" \
+            -H "Tags: radar,white_check_mark" \
+            -H "Click: https://github.com/${GITHUB_REPOSITORY}/actions" \
+            "${AUTH_ARGS[@]}" \
+            --data-binary "$MESSAGE" \
+            "${SERVER%/}/${NTFY_TOPIC}"
